@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>KAICORE – Let’s Build Something New</title>
+  <title>KAICORE – Fake Email Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      margin: 100px;
+      margin: 60px;
       background: #f8f8f8;
     }
     h1 {
@@ -16,19 +16,45 @@
       font-size: 2.5em;
     }
     p {
-      color: #555;
-      font-size: 1.2em;
+      color: #666;
     }
-    .box {
+    .email-box {
+      margin-top: 40px;
+      padding: 20px;
+      background: #fff;
       border: 2px dashed #aaa;
-      padding: 40px;
-      margin-top: 30px;
+      display: inline-block;
+    }
+    button {
+      padding: 10px 20px;
+      background: black;
+      color: white;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1>Let’s Build Something New</h1>
-  <p>Welcome to KAICORE — the future of online tools.</p>
-  <div class="box">🚧 Fake Email Generator — Coming Soon 🚧</div>
+  <h1>KAICORE – Fake Email Generator</h1>
+  <p>Click the button to generate a temporary email</p>
+  
+  <div class="email-box" id="emailBox">🕐 Waiting...</div>
+  
+  <br />
+  <button onclick="generateEmail()">Generate Email</button>
+
+  <script>
+    function generateEmail() {
+      const chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+      let email = '';
+      for (let i = 0; i < 10; i++) {
+        email += chars[Math.floor(Math.random() * chars.length)];
+      }
+      email += '@tempmail.kaicore';
+      document.getElementById('emailBox').textContent = email;
+    }
+  </script>
 </body>
 </html>

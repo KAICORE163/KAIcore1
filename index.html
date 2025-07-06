@@ -2,58 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>KAICORE – Fake Email Generator</title>
+  <title>KAICORE – Temp Mail with Inbox</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      margin: 60px;
-      background: #f8f8f8;
+      margin: 40px;
+      background: #f9f9f9;
     }
     h1 {
-      color: #222;
-      font-size: 2.5em;
+      font-size: 2.2em;
     }
-    p {
-      color: #666;
-    }
-    .email-box {
-      margin-top: 40px;
-      padding: 20px;
+    #emailBox {
+      font-size: 1.4em;
+      padding: 10px;
+      margin: 20px auto;
+      border: 2px dashed #000;
+      width: fit-content;
       background: #fff;
-      border: 2px dashed #aaa;
-      display: inline-block;
     }
     button {
-      padding: 10px 20px;
-      background: black;
+      padding: 12px 24px;
+      background: #000;
       color: white;
       border: none;
-      font-size: 16px;
       cursor: pointer;
-      margin-top: 20px;
+      font-size: 16px;
+    }
+    .inbox {
+      margin-top: 30px;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .message {
+      border: 1px solid #ccc;
+      padding: 12px;
+      margin: 10px 0;
+      background: #fff;
+    }
+    .message h3 {
+      margin: 0;
+      font-size: 1.1em;
+    }
+    .message p {
+      margin: 5px 0 0;
+      font-size: 0.9em;
+      color: #333;
     }
   </style>
 </head>
 <body>
-  <h1>KAICORE – Fake Email Generator</h1>
-  <p>Click the button to generate a temporary email</p>
-  
-  <div class="email-box" id="emailBox">🕐 Waiting...</div>
-  
-  <br />
+  <h1>KAICORE – Temp Email with Inbox</h1>
+  <p>Click the button to generate a temporary email and view incoming messages.</p>
+
+  <div id="emailBox">🕐 Waiting...</div>
   <button onclick="generateEmail()">Generate Email</button>
 
+  <div class="inbox" id="inbox"></div>
+
   <script>
-    function generateEmail() {
-      const chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
-      let email = '';
-      for (let i = 0; i < 10; i++) {
-        email += chars[Math.floor(Math.random() * chars.length)];
+    let token = '';
+    let emailAddress = '';
+    let accountId = '';
+    let interval;
+
+    async function generateEmail() {
+      document.getElementById('emailBox').textContent = "⏳ Generating...";
+
+      const random = Math.random().toString(36).substring(2, 12);
+      emailAddress = random + "@mail.tm";
+      document.getElementById('emailBox').textContent = emailAddress;
+
+      // Register the account
+      const res = await fetch('https://api.mail.tm/accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: emailAddress, password: "kaicore123" })
+      });
+
+      if (!res.ok) {
+        document.getElementById('emailBox').textContent = "⚠ Error generating email";
+        return;
       }
-      email += '@tempmail.kaicore';
-      document.getElementById('emailBox').textContent = email;
+
+      const data = await res.json();
+      accountId = data.id;
+
+      // Get token
+      const login = await fetch('https://api.mail.tm/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: emailAddress, password: "kaicore123" })
+      });
+
+      const tokenData = await login.json();
+      token = tokenData.token;
+
+      // Start fetching inbox every 10 seconds
+      clearInterval(interval);
+      fetchInbox(); // Run immediately
+      interval = setInterval(fetchInbox, 10000);
+    }
+
+    async function fetchInbox() {
+      const inboxDiv = document.getElementById("inbox");
+      inboxDiv.innerHTML = "<p>📬 Loading messages...</p>";
+
+      const res = await fetch('https://api.mail.tm/messages', {
+        headers: { Authorization: Bearer ${token} }
+      });
+
+      const data = await res.json();
+      if (!data || !data['hydra:member']) {
+        inboxDiv.innerHTML = "<p>❌ Error loading inbox.</p>";
+        return;
+      }
+
+      if (data['hydra:member'].length === 0) {
+        inboxDiv.innerHTML = "<p>📭 No messages yet. Try again later.</p>";
+        return;
+      }
+
+      inboxDiv.innerHTML = '';
+      data['hydra:member'].forEach(msg => {
+        inboxDiv.innerHTML += `
+          <div class="message">
+            <h3>📨 ${msg.from.address}</h3>
+            <p><strong>${msg.subject}</strong></p>
+            <p>${msg.intro}</p>
+          </div>
+        `;
+      });
     }
   </script>
 </body>

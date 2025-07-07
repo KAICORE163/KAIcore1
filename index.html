@@ -99,17 +99,14 @@
       const random = Math.random().toString(36).substring(2, 12);
       emailAddress = random + "@mail.tm";
       emailBox.textContent = emailAddress;
-      console.log("Generated email:", emailAddress);
 
       try {
-        // Create temp account
         await fetch('https://api.mail.tm/accounts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ address: emailAddress, password: "kaicore123" })
         });
 
-        // Login to get token
         const tokenRes = await fetch('https://api.mail.tm/token', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -134,7 +131,9 @@
 
       try {
         const res = await fetch('https://api.mail.tm/messages', {
-          headers: { 'Authorization': Bearer ${token} } // ✅ Fixed bug here
+          headers: {
+            'Authorization': Bearer ${token}
+          }
         });
 
         const data = await res.json();

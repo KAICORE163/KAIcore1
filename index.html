@@ -99,9 +99,10 @@
       const random = Math.random().toString(36).substring(2, 12);
       emailAddress = random + "@mail.tm";
       emailBox.textContent = emailAddress;
+      console.log("Generated email:", emailAddress);
 
       try {
-        await fetch('https://api.mail.tm/accounts', {
+        const createRes = await fetch('https://api.mail.tm/accounts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ address: emailAddress, password: "kaicore123" })

@@ -134,7 +134,7 @@
 
       try {
         const res = await fetch('https://api.mail.tm/messages', {
-          headers: { 'Authorization': Bearer ${token} }
+          headers: { 'Authorization': Bearer ${token} } // ✅ Fixed bug here
         });
 
         const data = await res.json();

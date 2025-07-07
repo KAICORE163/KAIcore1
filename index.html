@@ -101,14 +101,12 @@
       emailBox.textContent = emailAddress;
 
       try {
-        // Create account
         await fetch('https://api.mail.tm/accounts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ address: emailAddress, password: "kaicore123" })
         });
 
-        // Login to get token
         const tokenRes = await fetch('https://api.mail.tm/token', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
